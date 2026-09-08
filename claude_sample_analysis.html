@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Attrition &amp; Product Analysis — FY2026</title>
+<style>
+:root {
+  --bg: #F7F8FC; --card: #FFFFFF; --border: #E5E7EB; --border-lt: #F3F4F6;
+  --text: #111827; --muted: #6B7280; --light: #9CA3AF;
+  --blue: #3B82F6; --blue-bg: #EFF6FF;
+  --red: #EF4444; --red-bg: #FEF2F2;
+  --amber: #F59E0B; --amber-bg: #FFFBEB;
+  --green: #10B981; --green-bg: #ECFDF5;
+  --purple: #8B5CF6; --purple-bg: #F5F3FF;
+  --teal: #14B8A6;
+  --font: 'Inter', system-ui, -apple-system, sans-serif;
+  --r: 10px; --shadow: 0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.5}
+.page{max-width:1400px;margin:0 auto;padding:28px 24px}
+
+/* Header */
+header{margin-bottom:24px}
+header h1{font-size:22px;font-weight:700;letter-spacing:-.4px}
+header .sub{font-size:13px;color:var(--muted);margin-top:3px}
+
+/* KPI Row */
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:16px 18px}
+.kpi-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:7px}
+.kpi-val{font-size:26px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.kpi-note{font-size:11px;color:var(--muted);margin-top:5px}
+.pill{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:999px}
+.pill-red{background:var(--red-bg);color:var(--red)}
+.pill-amber{background:var(--amber-bg);color:var(--amber)}
+.pill-green{background:var(--green-bg);color:var(--green)}
+.pill-blue{background:var(--blue-bg);color:var(--blue)}
+
+/* Tabs */
+.tab-nav{display:flex;gap:0;border-bottom:2px solid var(--border);margin-bottom:20px}
+.tab-btn{background:none;border:none;font-family:var(--font);font-size:13px;font-weight:600;color:var(--muted);padding:10px 20px;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;letter-spacing:.1px;transition:color .15s}
+.tab-btn:hover{color:var(--text)}
+.tab-btn.active{color:var(--blue);border-bottom-color:var(--blue)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* Section label */
+.section{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--light);margin:4px 0 10px 2px}
+
+/* Card */
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow);padding:20px}
+.card-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:18px}
+
+/* Grids */
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.g2{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:14px}
+.g12{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:14px}
+
+/* Bar list */
+.blist{display:flex;flex-direction:column;gap:13px}
+.bhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px}
+.blabel{font-size:12px;font-weight:500;color:var(--text)}
+.bval{font-size:12px;font-weight:600;color:var(--muted)}
+.btrack{height:7px;background:var(--border-lt);border-radius:4px;overflow:hidden}
+.bfill{height:100%;border-radius:4px}
+.bsub{font-size:11px;color:var(--light);margin-top:3px}
+
+/* Stat rows */
+.srow{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--border-lt)}
+.srow:last-child{border-bottom:none}
+.sname{font-size:12px;color:var(--text);font-weight:500}
+.svals{display:flex;gap:16px}
+.sv{font-size:12px;font-weight:600;min-width:68px;text-align:right}
+
+/* Donut */
+.donut-wrap{display:flex;align-items:center;gap:18px}
+.dleg{flex:1}
+.dl-item{display:flex;align-items:flex-start;gap:9px;margin-bottom:14px}
+.dl-item:last-child{margin-bottom:0}
+.dl-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.dl-body{flex:1}
+.dl-name{font-size:12px;font-weight:600}
+.dl-detail{font-size:11px;color:var(--muted);margin-top:1px}
+.dl-pct{font-size:13px;font-weight:700;align-self:center}
+
+/* Segment selector */
+.seg-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.seg-card{background:var(--card);border:2px solid var(--border);border-radius:var(--r);padding:18px 20px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.seg-card:hover{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-bg)}
+.seg-card.active{border-color:var(--blue);background:var(--blue-bg)}
+.seg-card .sc-name{font-size:15px;font-weight:700;margin-bottom:6px}
+.seg-card .sc-arr{font-size:22px;font-weight:700;letter-spacing:-.4px}
+.seg-card .sc-meta{font-size:12px;color:var(--muted);margin-top:4px}
+.seg-detail{display:none}
+.seg-detail.active{display:block}
+.seg-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+.sk{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+.sk-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--muted);margin-bottom:6px}
+.sk-val{font-size:20px;font-weight:700;letter-spacing:-.3px}
+
+/* Industry cards */
+.ind-list{display:flex;flex-direction:column;gap:14px}
+.ind-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--shadow)}
+.ind-head{display:flex;align-items:center;gap:16px;padding:16px 20px;cursor:pointer;border-radius:var(--r)}
+.ind-head:hover{background:#FAFAFA}
+.ind-name{font-size:14px;font-weight:700;flex:1}
+.ind-arr{font-size:13px;font-weight:600;color:var(--muted)}
+.ind-badge{font-size:11px;font-weight:600;background:var(--red-bg);color:var(--red);padding:3px 9px;border-radius:999px}
+.ind-chevron{font-size:12px;color:var(--light);transition:transform .2s}
+.ind-body{display:none;padding:0 20px 18px;border-top:1px solid var(--border-lt)}
+.ind-body.open{display:block}
+.ind-products{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin:14px 0 16px}
+.ip-item{border:1px solid var(--border);border-radius:8px;padding:12px 14px}
+.ip-prod{font-size:12px;font-weight:700;margin-bottom:4px}
+.ip-low{font-size:22px;font-weight:700;letter-spacing:-.5px;line-height:1}
+.ip-label{font-size:11px;color:var(--muted);margin-top:2px}
+.ip-bar{height:5px;background:var(--border-lt);border-radius:3px;margin-top:8px;overflow:hidden}
+.ip-bar-fill{height:100%;border-radius:3px}
+.next-steps{background:#F8FEFF;border:1px solid #BAE6FD;border-radius:8px;padding:14px 16px;margin-top:8px}
+.ns-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#0284C7;margin-bottom:10px}
+.ns-item{display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;font-size:12px;color:var(--text)}
+.ns-item:last-child{margin-bottom:0}
+.ns-num{font-size:11px;font-weight:700;color:#0284C7;flex-shrink:0;margin-top:1px}
+.ns-urgent{background:#FEF2F2;border-color:#FECACA;color:var(--red)}
+.ns-urgent .ns-title{color:var(--red)}
+.ns-urgent .ns-num{color:var(--red)}
+
+/* Manager notes */
+.theme-bar-list{display:flex;flex-direction:column;gap:14px}
+.tb-item{}
+.tb-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.tb-name{font-size:13px;font-weight:600}
+.tb-cnt{font-size:12px;font-weight:600;color:var(--muted)}
+.tb-track{height:10px;background:var(--border-lt);border-radius:5px;overflow:hidden;margin-bottom:4px}
+.tb-fill{height:100%;border-radius:5px}
+.tb-quote{font-size:11px;color:var(--muted);font-style:italic;margin-top:3px}
+.themes-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.seg-theme-table{overflow:auto}
+table.stt{width:100%;border-collapse:collapse;font-size:12px}
+table.stt th{text-align:left;padding:7px 10px;background:#FAFAFA;border-bottom:2px solid var(--border);color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;white-space:nowrap}
+table.stt td{padding:7px 10px;border-bottom:1px solid var(--border-lt)}
+table.stt tr:last-child td{border-bottom:none}
+.bar-cell{display:flex;align-items:center;gap:8px}
+.bc-bar{height:6px;background:var(--border-lt);border-radius:3px;width:60px;flex-shrink:0;overflow:hidden}
+.bc-fill{height:100%;border-radius:3px}
+
+.timeline-scroll{overflow-x:auto}
+
+@media(max-width:1100px){
+  .kpi-row{grid-template-columns:repeat(3,1fr)}
+  .g3{grid-template-columns:1fr 1fr}
+  .seg-kpis{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:700px){
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .g3,.g2,.g12{grid-template-columns:1fr}
+  .seg-cards,.ind-products,.themes-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header>
+  <h1>Attrition &amp; Product Analysis</h1>
+  <div class="sub">FY2026 Renewals Pipeline &middot; 700 Opportunities &middot; $2.38B Total ARR</div>
+</header>
+
+<!-- KPI Row (always visible) -->
+<div class="kpi-row">
+  <div class="kpi">
+    <div class="kpi-label">Total ARR</div>
+    <div class="kpi-val">$2.38B</div>
+    <div class="kpi-note">available to renew</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Net Forecast</div>
+    <div class="kpi-val">$1.13B</div>
+    <div class="kpi-note">after attrition</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Forecast Attrition</div>
+    <div class="kpi-val" style="color:var(--red)">–$1.25B</div>
+    <div class="kpi-note"><span class="pill pill-red">52.6% of ARR</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Attrition Rate</div>
+    <div class="kpi-val" style="color:var(--red)">52.6%</div>
+    <div class="kpi-note">avg across products</div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Red Flag Opps</div>
+    <div class="kpi-val" style="color:var(--red)">347</div>
+    <div class="kpi-note"><span class="pill pill-red">$1.28B at risk</span></div>
+  </div>
+  <div class="kpi">
+    <div class="kpi-label">Yellow Flag Opps</div>
+    <div class="kpi-val" style="color:var(--amber)">353</div>
+    <div class="kpi-note"><span class="pill pill-amber">$1.11B at risk</span></div>
+  </div>
+</div>
+
+<!-- Tabs -->
+<nav class="tab-nav">
+  <button class="tab-btn active" data-tab="overview">Overview</button>
+  <button class="tab-btn" data-tab="segments">By Segment</button>
+  <button class="tab-btn" data-tab="industries">By Industry</button>
+  <button class="tab-btn" data-tab="notes">Manager Insights</button>
+</nav>
+
+<!-- ═══ TAB: Overview ═══ -->
+<div id="tab-overview" class="tab-panel active">
+
+  <div class="section">Product &amp; Risk Breakdown</div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title">ARR by Product</div>
+      <div class="blist" id="c-arr-prod"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Attrition Rate by Product</div>
+      <div class="blist" id="c-att-prod"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Renewal Risk Categories</div>
+      <div class="blist" id="c-risk"></div>
+    </div>
+  </div>
+
+  <div class="g12">
+    <div class="card">
+      <div class="card-title">Risk Flag Split</div>
+      <div class="donut-wrap">
+        <svg id="donut" width="120" height="120" viewBox="0 0 120 120" style="flex-shrink:0"></svg>
+        <div class="dleg" id="dleg"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Product Summary — ARR · Attrition · Rate</div>
+      <div id="prod-table"></div>
+    </div>
+  </div>
+
+  <div class="section">Renewal Close Timeline</div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Monthly ARR ($M) — FY2026 &amp; FY2027</div>
+    <div class="timeline-scroll">
+      <svg id="timeline" height="155" style="min-width:700px;width:100%;overflow:visible"></svg>
+    </div>
+  </div>
+
+  <div class="section">Adoption &amp; Geography</div>
+  <div class="g3">
+    <div class="card">
+      <div class="card-title">ARR by Geography</div>
+      <div class="blist" id="c-geo"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Adoption Distribution</div>
+      <div class="blist" id="c-adopt"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Key Insights</div>
+      <div id="insights"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB: Segments ═══ -->
+<div id="tab-segments" class="tab-panel">
+
+  <div class="section">Select a Segment</div>
+  <div class="seg-cards">
+    <div class="seg-card active" data-seg="Enterprise" onclick="selectSegment('Enterprise')">
+      <div class="sc-name">Enterprise</div>
+      <div class="sc-arr">$991M</div>
+      <div class="sc-meta">291 opps · 53.5% attrition · 155 red flag</div>
+    </div>
+    <div class="seg-card" data-seg="Commercial" onclick="selectSegment('Commercial')">
+      <div class="sc-name">Commercial</div>
+      <div class="sc-arr">$968M</div>
+      <div class="sc-meta">263 opps · 53.3% attrition · 130 red flag</div>
+    </div>
+    <div class="seg-card" data-seg="Technology" onclick="selectSegment('Technology')">
+      <div class="sc-name">Technology</div>
+      <div class="sc-arr">$423M</div>
+      <div class="sc-meta">146 opps · 49.0% attrition · 62 red flag</div>
+    </div>
+  </div>
+
+  <!-- Enterprise detail -->
+  <div id="seg-Enterprise" class="seg-detail active">
+    <div class="seg-kpis">
+      <div class="sk"><div class="sk-label">ARR</div><div class="sk-val">$991M</div></div>
+      <div class="sk"><div class="sk-label">Net Forecast</div><div class="sk-val">$460M</div></div>
+      <div class="sk"><div class="sk-label">Attrition Rate</div><div class="sk-val" style="color:var(--red)">53.5%</div></div>
+      <div class="sk"><div class="sk-label">Red Flag Opps</div><div class="sk-val" style="color:var(--red)">155</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Products — ARR &amp; Red Flag %</div>
+        <div id="seg-ent-prod"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Renewal Risk Factors</div>
+        <div class="blist" id="seg-ent-risk"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;background:#FFFBEB;border-color:#FCD34D">
+      <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:6px">Enterprise Insight</div>
+      <div style="font-size:13px;color:#78350F">Adoption risk dominates (88 opps). Analytics &amp; AI and Data have the highest red-flag rates (59%). Sales is the strongest performer at 39% red — leverage as a retention benchmark.</div>
+    </div>
+  </div>
+
+  <!-- Commercial detail -->
+  <div id="seg-Commercial" class="seg-detail">
+    <div class="seg-kpis">
+      <div class="sk"><div class="sk-label">ARR</div><div class="sk-val">$968M</div></div>
+      <div class="sk"><div class="sk-label">Net Forecast</div><div class="sk-val">$452M</div></div>
+      <div class="sk"><div class="sk-label">Attrition Rate</div><div class="sk-val" style="color:var(--red)">53.3%</div></div>
+      <div class="sk"><div class="sk-label">Red Flag Opps</div><div class="sk-val" style="color:var(--red)">130</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Products — ARR &amp; Red Flag %</div>
+        <div id="seg-com-prod"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Renewal Risk Factors</div>
+        <div class="blist" id="seg-com-risk"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;background:#FFFBEB;border-color:#FCD34D">
+      <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:6px">Commercial Insight</div>
+      <div style="font-size:13px;color:#78350F">Pricing and Adoption risk are tied at 75 opps each — suggesting pricing sensitivity alongside usage gaps. Marketing Cloud has the highest red-flag rate at 63%. Consider bundled pricing review for at-risk Marketing Cloud accounts.</div>
+    </div>
+  </div>
+
+  <!-- Technology detail -->
+  <div id="seg-Technology" class="seg-detail">
+    <div class="seg-kpis">
+      <div class="sk"><div class="sk-label">ARR</div><div class="sk-val">$423M</div></div>
+      <div class="sk"><div class="sk-label">Net Forecast</div><div class="sk-val">$216M</div></div>
+      <div class="sk"><div class="sk-label">Attrition Rate</div><div class="sk-val" style="color:var(--amber)">49.0%</div></div>
+      <div class="sk"><div class="sk-label">Red Flag Opps</div><div class="sk-val" style="color:var(--red)">62</div></div>
+    </div>
+    <div class="g2">
+      <div class="card">
+        <div class="card-title">Products — ARR &amp; Red Flag %</div>
+        <div id="seg-tech-prod"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Top Renewal Risk Factors</div>
+        <div class="blist" id="seg-tech-risk"></div>
+      </div>
+    </div>
+    <div class="card" style="margin-bottom:14px;background:#F0FDF4;border-color:#86EFAC">
+      <div style="font-size:12px;font-weight:700;color:#166534;margin-bottom:6px">Technology Insight</div>
+      <div style="font-size:13px;color:#15803D">Best attrition rate of the three segments at 49%. Marketing Cloud has the lowest red-flag rate at 28% — strong fit. Core and Analytics show elevated red rates (67%, 50%) despite smaller ARR — prioritise for targeted intervention.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ═══ TAB: Industries ═══ -->
+<div id="tab-industries" class="tab-panel">
+
+  <div class="section">Low Adoption by Industry — Suggested Next Steps</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:16px">
+    Showing the top product with the most low-adoption (&lt;25%) accounts in each industry, with recommended actions.
+  </div>
+  <div class="ind-list" id="ind-list"></div>
+
+</div>
+
+<!-- ═══ TAB: Manager Insights ═══ -->
+<div id="tab-notes" class="tab-panel">
+
+  <div class="section">Manager Note Theme Analysis</div>
+  <div class="g12" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">Theme Distribution — 700 Notes</div>
+      <div class="theme-bar-list" id="theme-bars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Themes by Segment</div>
+      <div class="seg-theme-table">
+        <table class="stt" id="theme-seg-table"></table>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">Theme Breakdown by Product</div>
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-title">Manager Note Themes by Product</div>
+    <div class="seg-theme-table">
+      <table class="stt" id="theme-prod-table"></table>
+    </div>
+  </div>
+
+  <div class="section">Strategic Recommendations</div>
+  <div class="g3">
+    <div class="card" style="border-left:3px solid var(--red)">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--red);margin-bottom:8px">Immediate Actions</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7">
+        <div style="margin-bottom:6px">• <b>Low Usage (110 opps)</b> — trigger adoption sprints; CSM-led 30-day plans</div>
+        <div style="margin-bottom:6px">• <b>Budget Constraints (109 opps)</b> — prepare value-realization decks before renewal calls</div>
+        <div>• <b>General At-Risk (129 opps)</b> — escalate unconfirmed renewals to account directors</div>
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--amber);margin-bottom:8px">Medium-term Focus</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7">
+        <div style="margin-bottom:6px">• <b>Pricing Concerns (127 opps)</b> — review commercial terms; consider multi-year discounts</div>
+        <div style="margin-bottom:6px">• <b>Org Restructuring (125 opps)</b> — re-map stakeholders; request executive sponsor introductions</div>
+        <div>• Enterprise has the highest Org Restructuring count (56) — prioritise C-suite relationship rebuilding</div>
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--blue)">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--blue);margin-bottom:8px">Product-Specific Signal</div>
+      <div style="font-size:12px;color:var(--text);line-height:1.7">
+        <div style="margin-bottom:6px">• <b>AI and Data</b> leads in Low Usage (30) — literacy &amp; onboarding gap</div>
+        <div style="margin-bottom:6px">• <b>Marketing Cloud</b> has most Org Restructuring notes (35) — buyer instability</div>
+        <div>• <b>Technology segment</b>: Low Usage is the #1 theme (30) — build self-serve resources</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</div><!-- /page -->
+<script>
+const $ = id => document.getElementById(id);
+const fmtM = v => '$' + (+v).toFixed(0) + 'M';
+
+/* ── Tab switching ── */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + btn.dataset.tab).classList.add('active');
+    if (btn.dataset.tab === 'overview') drawTimeline();
+  });
+});
+
+/* ── Segment selector ── */
+function selectSegment(name) {
+  document.querySelectorAll('.seg-card').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.seg-detail').forEach(d => d.classList.remove('active'));
+  document.querySelector('[data-seg="' + name + '"]').classList.add('active');
+  $('seg-' + name).classList.add('active');
+}
+
+/* ── Bar list helper ── */
+function barList(id, items, maxVal) {
+  $(id).innerHTML = items.map(({ label, value, display, sub, color }) => {
+    const pct = maxVal > 0 ? Math.min(value / maxVal * 100, 100) : 0;
+    return `<div>
+      <div class="bhead"><span class="blabel">${label}</span><span class="bval">${display}</span></div>
+      <div class="btrack"><div class="bfill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
+      ${sub ? `<div class="bsub">${sub}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+/* ── Data ── */
+const PC = { 'Marketing Cloud':'#3B82F6','AI and Data':'#8B5CF6','Analytics':'#14B8A6','Core':'#F59E0B','Sales':'#10B981' };
+
+const PRODUCTS = [
+  { name:'Marketing Cloud', arr:731.4, net:342.7, att:388.7, rate:53.1, count:192, red:88 },
+  { name:'AI and Data',     arr:522.6, net:243.8, att:278.8, rate:53.3, count:141, red:73 },
+  { name:'Analytics',       arr:510.6, net:233.5, att:277.1, rate:54.3, count:151, red:78 },
+  { name:'Core',             arr:339.9, net:158.6, att:181.3, rate:53.3, count:110, red:58 },
+  { name:'Sales',            arr:277.6, net:149.6, att:128.0, rate:46.1, count:106, red:50 },
+];
+const GEO = [
+  { name:'AMER', arr:853.7, rate:54.0, count:236, color:'#3B82F6' },
+  { name:'APAC', arr:812.2, rate:52.6, count:248, color:'#14B8A6' },
+  { name:'EMEA', arr:716.2, rate:51.1, count:216, color:'#8B5CF6' },
+];
+const RENEWAL_RISK = [
+  { name:'Adoption',           count:203, arr:699.6, color:'#EF4444' },
+  { name:'Pricing / Contract', count:178, arr:580.2, color:'#F59E0B' },
+  { name:'Compliance / Policy',count:168, arr:535.5, color:'#8B5CF6' },
+  { name:'Product',            count:151, arr:566.7, color:'#3B82F6' },
+];
+const TIMELINE = [
+  {m:'Jun 26',arr:294.3,count:78,fy:26},{m:'Jul 26',arr:251.0,count:61,fy:26},{m:'Aug 26',arr:278.3,count:73,fy:26},
+  {m:'Sep 26',arr:300.9,count:66,fy:26},{m:'Oct 26',arr:323.7,count:73,fy:26},{m:'Nov 26',arr:296.8,count:83,fy:26},
+  {m:'Dec 26',arr:221.8,count:57,fy:26},{m:'Jan 27',arr:32.0,count:17,fy:27},{m:'Feb 27',arr:31.8,count:17,fy:27},
+  {m:'Mar 27',arr:33.7,count:20,fy:27},{m:'Apr 27',arr:25.4,count:13,fy:27},{m:'May 27',arr:24.1,count:14,fy:27},
+  {m:'Jun 27',arr:15.7,count:11,fy:27},{m:'Jul 27',arr:28.5,count:16,fy:27},{m:'Aug 27',arr:38.6,count:18,fy:27},
+  {m:'Sep 27',arr:23.4,count:15,fy:27},{m:'Oct 27',arr:41.4,count:19,fy:27},{m:'Nov 27',arr:38.7,count:17,fy:27},
+  {m:'Dec 27',arr:46.6,count:23,fy:27},
+];
+const ADOPTION = [
+  {label:'< 25%',  count:263,pct:37.6,color:'#EF4444'},
+  {label:'25–50%', count:237,pct:33.9,color:'#F59E0B'},
+  {label:'75–100%',count:3,  pct:0.4, color:'#10B981'},
+  {label:'> 100%', count:197,pct:28.1,color:'#8B5CF6'},
+];
+
+const SEGMENTS = {
+  Enterprise:{
+    arr:991,net:460,att:531,rate:53.5,count:291,red:155,
+    products:[
+      {name:'Marketing Cloud',arr:303,att:166,rate:54.9,count:70,red:35},
+      {name:'AI and Data',    arr:231,att:131,rate:56.7,count:66,red:39},
+      {name:'Analytics',      arr:205,att:112,rate:54.8,count:68,red:40},
+      {name:'Core',           arr:128,att:69, rate:54.2,count:41,red:23},
+      {name:'Sales',          arr:124,att:51, rate:41.5,count:46,red:18},
+    ],
+  },
+  Commercial:{
+    arr:968,net:452,att:516,rate:53.3,count:263,red:130,
+    products:[
+      {name:'Marketing Cloud',arr:246,att:145,rate:59.1,count:54,red:34},
+      {name:'AI and Data',    arr:228,att:118,rate:51.9,count:60,red:27},
+      {name:'Analytics',      arr:215,att:112,rate:52.0,count:53,red:23},
+      {name:'Core',           arr:184,att:95, rate:51.6,count:57,red:27},
+      {name:'Sales',          arr:95, att:45, rate:47.8,count:39,red:19},
+    ],
+    risk:[],
+  },
+  Technology:{
+    arr:423,net:216,att:207,rate:49.0,count:146,red:62,
+    products:[
+      {name:'Marketing Cloud',arr:182,att:77,rate:42.2,count:68,red:19},
+      {name:'Analytics',      arr:91, att:53,rate:58.5,count:30,red:15},
+      {name:'AI and Data',    arr:63, att:29,rate:46.5,count:15,red:7},
+      {name:'Sales',          arr:59, att:31,rate:53.1,count:21,red:13},
+      {name:'Core',           arr:28, att:17,rate:60.3,count:12,red:8},
+    ],
+    risk:[],
+  },
+};
+
+const SEG_RISKS = {
+  Enterprise:  [{name:'Adoption',count:88,color:'#EF4444'},{name:'Compliance/Policy',count:71,color:'#8B5CF6'},{name:'Pricing/Contract',count:69,color:'#F59E0B'},{name:'Product',count:63,color:'#3B82F6'}],
+  Commercial:  [{name:'Adoption',count:75,color:'#EF4444'},{name:'Pricing/Contract',count:75,color:'#F59E0B'},{name:'Product',count:58,color:'#3B82F6'},{name:'Compliance/Policy',count:55,color:'#8B5CF6'}],
+  Technology:  [{name:'Compliance/Policy',count:42,color:'#8B5CF6'},{name:'Adoption',count:40,color:'#EF4444'},{name:'Pricing/Contract',count:34,color:'#F59E0B'},{name:'Product',count:30,color:'#3B82F6'}],
+};
+
+const INDUSTRIES = [
+  {
+    name:'Telecommunications', arr:486, lowAdopt:52,
+    products:[
+      {name:'AI and Data',lowAdopt:18,count:30,color:'#8B5CF6'},
+      {name:'Marketing Cloud',lowAdopt:10,count:31,color:'#3B82F6'},
+      {name:'Analytics',lowAdopt:9,count:26,color:'#14B8A6'},
+      {name:'Core',lowAdopt:8,count:22,color:'#F59E0B'},
+    ],
+    steps:[
+      'Facilitate network performance modeling workshop with technical leads',
+      'Define 3 customer churn prediction use cases for a Q3 pilot program',
+      'Assign dedicated AI Success Engineer for 60-day onboarding sprint',
+    ]
+  },
+  {
+    name:'Retail', arr:421, lowAdopt:51,
+    products:[
+      {name:'AI and Data',lowAdopt:17,count:25,color:'#8B5CF6'},
+      {name:'Marketing Cloud',lowAdopt:13,count:38,color:'#3B82F6'},
+      {name:'Analytics',lowAdopt:9,count:26,color:'#14B8A6'},
+    ],
+    steps:[
+      'Co-create personalization and demand forecasting use case playbook',
+      'Launch 30-day adoption pilot with top 5 at-risk retail accounts',
+      'Connect customers with peer references in the retail vertical',
+    ]
+  },
+  {
+    name:'Financial Services', arr:406, lowAdopt:46, urgent:true,
+    products:[
+      {name:'Core',lowAdopt:13,count:19,color:'#F59E0B',avgAdoption:19},
+      {name:'AI and Data',lowAdopt:12,count:25,color:'#8B5CF6'},
+      {name:'Marketing Cloud',lowAdopt:10,count:36,color:'#3B82F6'},
+    ],
+    steps:[
+      'URGENT: Core avg adoption is only 19% — escalate all 13 accounts to CSM leadership this week',
+      'Map Core product features directly to regulatory reporting and compliance workflows',
+      'Schedule executive business review with risk & compliance stakeholders within 30 days',
+    ]
+  },
+  {
+    name:'Healthcare', arr:405, lowAdopt:43,
+    products:[
+      {name:'AI and Data',lowAdopt:14,count:29,color:'#8B5CF6'},
+      {name:'Marketing Cloud',lowAdopt:12,count:30,color:'#3B82F6'},
+      {name:'Analytics',lowAdopt:7,count:23,color:'#14B8A6'},
+    ],
+    steps:[
+      'Identify HIPAA-compliant clinical data analytics use cases with each customer',
+      'Deliver proof-of-value session within 60 days with CMO sponsorship',
+      'Provide healthcare-specific onboarding accelerator pack to all low-adoption accounts',
+    ]
+  },
+  {
+    name:'Technology', arr:344, lowAdopt:42,
+    products:[
+      {name:'Analytics',lowAdopt:13,count:30,color:'#14B8A6'},
+      {name:'AI and Data',lowAdopt:8,count:15,color:'#8B5CF6'},
+      {name:'Sales',lowAdopt:8,count:21,color:'#10B981'},
+    ],
+    steps:[
+      'Run developer-focused API integration workshop with sandbox environment',
+      'Build self-serve analytics quick-start guide for engineering-led teams',
+      'Sponsor an internal hackathon to accelerate feature exploration and adoption',
+    ]
+  },
+  {
+    name:'Manufacturing', arr:319, lowAdopt:29,
+    products:[
+      {name:'Analytics',lowAdopt:9,count:26,color:'#14B8A6'},
+      {name:'Marketing Cloud',lowAdopt:9,count:26,color:'#3B82F6'},
+      {name:'AI and Data',lowAdopt:7,count:17,color:'#8B5CF6'},
+    ],
+    steps:[
+      'Demo supply chain OEE dashboards with customer operations team',
+      'Connect low-adoption accounts with peer references in the manufacturing vertical',
+      'Offer production planning analytics template library as quick-win starter kit',
+    ]
+  },
+];
+
+const NOTE_THEMES = [
+  {name:'General At-Risk',      count:129,pct:18.4,color:'#EF4444',quote:'"Awaiting customer confirmation; risk remains elevated"'},
+  {name:'Pricing Concerns',     count:127,pct:18.1,color:'#F59E0B',quote:'"Renewal is at risk of attrition — Pricing concerns"'},
+  {name:'Org Restructuring',    count:125,pct:17.9,color:'#8B5CF6',quote:'"Internal org restructuring impacting renewal decision"'},
+  {name:'Low Usage',            count:110,pct:15.7,color:'#3B82F6',quote:'"Renewal is at risk of attrition — Low Usage"'},
+  {name:'Budget Constraints',   count:109,pct:15.6,color:'#14B8A6',quote:'"Budget constraints reported — renewal at risk"'},
+  {name:'Compliance Review',    count:100,pct:14.3,color:'#6366F1',quote:'"Customer reviewing internal compliance policies impacting renewal"'},
+];
+const THEME_BY_SEG = {
+  'General At-Risk':   {Enterprise:54,Commercial:52,Technology:23},
+  'Pricing Concerns':  {Enterprise:52,Commercial:52,Technology:23},
+  'Org Restructuring': {Enterprise:56,Commercial:45,Technology:24},
+  'Low Usage':         {Enterprise:45,Commercial:35,Technology:30},
+  'Budget Constraints':{Enterprise:46,Commercial:37,Technology:26},
+  'Compliance Review': {Enterprise:38,Commercial:42,Technology:20},
+};
+const THEME_BY_PROD = {
+  'General At-Risk':   {'Marketing Cloud':34,'AI and Data':22,'Analytics':31,'Core':24,'Sales':18},
+  'Pricing Concerns':  {'Marketing Cloud':33,'AI and Data':28,'Analytics':28,'Core':17,'Sales':21},
+  'Org Restructuring': {'Marketing Cloud':35,'AI and Data':29,'Analytics':24,'Core':19,'Sales':18},
+  'Low Usage':         {'Marketing Cloud':26,'AI and Data':30,'Analytics':22,'Core':13,'Sales':19},
+  'Budget Constraints':{'Marketing Cloud':33,'AI and Data':20,'Analytics':25,'Core':18,'Sales':13},
+  'Compliance Review': {'Marketing Cloud':31,'AI and Data':12,'Analytics':21,'Core':19,'Sales':17},
+};
+
+/* ═══ RENDER OVERVIEW ═══ */
+barList('c-arr-prod', PRODUCTS.map(p=>({label:p.name,value:p.arr,display:fmtM(p.arr),sub:p.count+' opps · '+p.red+' red flag',color:PC[p.name]})), Math.max(...PRODUCTS.map(p=>p.arr)));
+barList('c-att-prod', PRODUCTS.map(p=>({label:p.name,value:p.rate,display:p.rate+'%',sub:'–'+fmtM(p.att)+' attrition',color:p.rate<50?'#10B981':p.rate<54?'#F59E0B':'#EF4444'})), 60);
+barList('c-risk', RENEWAL_RISK.map(r=>({label:r.name,value:r.count,display:r.count+' opps',sub:fmtM(r.arr)+' ARR',color:r.color})), Math.max(...RENEWAL_RISK.map(r=>r.count)));
+barList('c-geo', GEO.map(g=>({label:g.name,value:g.arr,display:fmtM(g.arr),sub:g.rate+'% attrition · '+g.count+' opps',color:g.color})), Math.max(...GEO.map(g=>g.arr)));
+barList('c-adopt', ADOPTION.map(a=>({label:a.label,value:a.count,display:a.count+' ('+a.pct+'%)',sub:null,color:a.color})), Math.max(...ADOPTION.map(a=>a.count)));
+
+// Donut
+(()=>{
+  const svg=$('donut'), items=[{label:'Red Flag',count:347,pct:49.6,arr:'$1.28B',color:'#EF4444'},{label:'Yellow Flag',count:353,pct:50.4,arr:'$1.11B',color:'#F59E0B'}];
+  const cx=60,cy=60,R=45,r=28; let a=-Math.PI/2; let html='';
+  items.forEach(d=>{
+    const sw=d.count/700*Math.PI*2;
+    const [x1,y1]=[cx+R*Math.cos(a),cy+R*Math.sin(a)]; a+=sw;
+    const [x2,y2]=[cx+R*Math.cos(a),cy+R*Math.sin(a)];
+    const [ix1,iy1]=[cx+r*Math.cos(a),cy+r*Math.sin(a)];
+    const [ix2,iy2]=[cx+r*Math.cos(a-sw),cy+r*Math.sin(a-sw)];
+    html+=`<path d="M${x1},${y1}A${R},${R} 0 ${sw>Math.PI?1:0},1 ${x2},${y2}L${ix1},${iy1}A${r},${r} 0 ${sw>Math.PI?1:0},0 ${ix2},${iy2}Z" fill="${d.color}"/>`;
+  });
+  html+=`<text x="60" y="57" text-anchor="middle" font-size="14" font-weight="700" fill="#111827">700</text><text x="60" y="72" text-anchor="middle" font-size="10" fill="#6B7280">opps</text>`;
+  svg.innerHTML=html;
+  $('dleg').innerHTML=items.map(d=>`<div class="dl-item"><div class="dl-dot" style="background:${d.color}"></div><div class="dl-body"><div class="dl-name">${d.label}</div><div class="dl-detail">${d.count} opps · ${d.arr} ARR</div></div><div class="dl-pct">${d.pct}%</div></div>`).join('');
+})();
+
+// Product table
+(()=>{
+  const hdr=`<div style="display:flex;justify-content:flex-end;gap:16px;padding:0 0 6px;border-bottom:1px solid var(--border-lt);margin-bottom:2px"><span style="font-size:11px;color:var(--muted);min-width:68px;text-align:right">ARR</span><span style="font-size:11px;color:var(--muted);min-width:68px;text-align:right">Attrition</span><span style="font-size:11px;color:var(--muted);min-width:58px;text-align:right">Rate</span></div>`;
+  const rows=PRODUCTS.map(p=>`<div class="srow"><span class="sname"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PC[p.name]};margin-right:7px;vertical-align:middle"></span>${p.name}</span><div class="svals"><span class="sv">${fmtM(p.arr)}</span><span class="sv" style="color:var(--red)">–${fmtM(p.att)}</span><span class="sv" style="color:${p.rate<50?'var(--green)':'var(--red)'}">${p.rate}%</span></div></div>`).join('');
+  $('prod-table').innerHTML=hdr+rows;
+})();
+
+// Insights
+$('insights').innerHTML=[
+  ['Best attrition rate','Sales — 46.1%','var(--green)'],
+  ['Worst attrition rate','Analytics — 54.3%','var(--red)'],
+  ['Largest ARR product','Mktg Cloud — $731M','var(--text)'],
+  ['Top renewal risk','Adoption — 203 opps','var(--red)'],
+  ['Peak close month','Nov 2026 — 83 opps','var(--text)'],
+  ['Low adoption < 25%','263 opps (37.6%)','var(--red)'],
+  ['Over-adopted > 100%','197 opps (28.1%)','var(--purple)'],
+  ['Best geo attrition','EMEA — 51.1%','var(--green)'],
+].map(([n,v,c])=>`<div class="srow"><span class="sname">${n}</span><span class="sv" style="color:${c};font-size:12px">${v}</span></div>`).join('');
+
+/* ═══ RENDER SEGMENTS ═══ */
+function renderSegProd(id, seg) {
+  const prods = SEGMENTS[seg].products;
+  const maxArr = Math.max(...prods.map(p=>p.arr));
+  const rows = prods.map(p=>`
+    <div class="srow">
+      <span class="sname"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${PC[p.name]};margin-right:7px;vertical-align:middle"></span>${p.name}</span>
+      <div style="flex:1;margin:0 14px">
+        <div style="display:flex;gap:6px;align-items:center">
+          <div style="flex:1;height:6px;background:var(--border-lt);border-radius:3px;overflow:hidden"><div style="height:100%;width:${(p.arr/maxArr*100).toFixed(1)}%;background:${PC[p.name]};border-radius:3px"></div></div>
+          <span style="font-size:11px;color:var(--muted);min-width:38px;text-align:right">${fmtM(p.arr)}</span>
+        </div>
+      </div>
+      <span style="font-size:12px;font-weight:600;min-width:70px;text-align:right;color:${p.rate<50?'var(--green)':'var(--red)'}">${p.rate}% att</span>
+      <span style="font-size:11px;color:${p.red/p.count>.5?'var(--red)':'var(--muted)'};min-width:62px;text-align:right">${p.red}/${p.count} red</span>
+    </div>`).join('');
+  $(id).innerHTML=rows;
+}
+renderSegProd('seg-ent-prod','Enterprise');
+renderSegProd('seg-com-prod','Commercial');
+renderSegProd('seg-tech-prod','Technology');
+
+function renderSegRisk(id, seg) {
+  const risks = SEG_RISKS[seg];
+  barList(id, risks.map(r=>({label:r.name,value:r.count,display:r.count+' opps',sub:null,color:r.color})), Math.max(...risks.map(r=>r.count)));
+}
+renderSegRisk('seg-ent-risk','Enterprise');
+renderSegRisk('seg-com-risk','Commercial');
+renderSegRisk('seg-tech-risk','Technology');
+
+/* ═══ RENDER INDUSTRIES ═══ */
+(()=>{
+  const list = $('ind-list');
+  list.innerHTML = INDUSTRIES.map((ind,i) => {
+    const maxLow = Math.max(...ind.products.map(p=>p.lowAdopt));
+    const prodCards = ind.products.map(p=>`
+      <div class="ip-item">
+        <div class="ip-prod"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${p.color};margin-right:5px;vertical-align:middle"></span>${p.name}${p.avgAdoption?` <span class="pill pill-red">${p.avgAdoption}% avg</span>`:''}</div>
+        <div class="ip-low">${p.lowAdopt}</div>
+        <div class="ip-label">low-adoption accts of ${p.count}</div>
+        <div class="ip-bar"><div class="ip-bar-fill" style="width:${(p.lowAdopt/maxLow*100).toFixed(1)}%;background:${p.color}"></div></div>
+      </div>`).join('');
+    const nsClass = ind.urgent ? 'next-steps ns-urgent' : 'next-steps';
+    const steps = ind.steps.map((s,j)=>`<div class="ns-item"><span class="ns-num">${j+1}.</span><span>${s}</span></div>`).join('');
+    return `
+      <div class="ind-card">
+        <div class="ind-head" onclick="toggleInd(${i})">
+          <div class="ind-name">${ind.name}</div>
+          <div class="ind-arr">$${ind.arr}M ARR</div>
+          <div class="ind-badge">${ind.lowAdopt} low-adoption opps</div>
+          <div class="ind-chevron" id="chev-${i}">▼</div>
+        </div>
+        <div class="ind-body ${i===0?'open':''}" id="ind-body-${i}">
+          <div class="ind-products">${prodCards}</div>
+          <div class="${nsClass}">
+            <div class="ns-title">${ind.urgent?'⚠ Urgent ':''}Suggested Next Steps</div>
+            ${steps}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+})();
+
+function toggleInd(i) {
+  const body = $('ind-body-'+i);
+  const chev = $('chev-'+i);
+  const open = body.classList.contains('open');
+  body.classList.toggle('open', !open);
+  chev.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+/* ═══ RENDER MANAGER INSIGHTS ═══ */
+(()=>{
+  // Theme bars
+  $('theme-bars').innerHTML = NOTE_THEMES.map(t=>`
+    <div class="tb-item">
+      <div class="tb-head"><span class="tb-name">${t.name}</span><span class="tb-cnt">${t.count} <span style="color:var(--light)">(${t.pct}%)</span></span></div>
+      <div class="tb-track"><div class="tb-fill" style="width:${(t.count/129*100).toFixed(1)}%;background:${t.color}"></div></div>
+      <div class="tb-quote">${t.quote}</div>
+    </div>`).join('');
+
+  // Theme by segment table
+  const themes = NOTE_THEMES.map(t=>t.name);
+  const segs = ['Enterprise','Commercial','Technology'];
+  const tHead = '<thead><tr><th>Theme</th>' + segs.map(s=>`<th>${s}</th>`).join('') + '</tr></thead>';
+  const tBody = '<tbody>' + themes.map(t=>{
+    const th = THEME_BY_SEG[t];
+    const max = Math.max(...segs.map(s=>th[s]));
+    return '<tr><td style="font-weight:600;font-size:12px">' + t + '</td>' + segs.map(s=>`<td><div class="bar-cell"><div class="bc-bar"><div class="bc-fill" style="width:${(th[s]/max*100).toFixed(0)}%;background:${NOTE_THEMES.find(x=>x.name===t).color}"></div></div><span style="font-size:12px;font-weight:600">${th[s]}</span></div></td>`).join('') + '</tr>';
+  }).join('') + '</tbody>';
+  $('theme-seg-table').innerHTML = tHead + tBody;
+
+  // Theme by product table
+  const prods = ['Marketing Cloud','AI and Data','Analytics','Core','Sales'];
+  const p2Head = '<thead><tr><th>Theme</th>' + prods.map(p=>`<th>${p}</th>`).join('') + '</tr></thead>';
+  const p2Body = '<tbody>' + themes.map(t=>{
+    const th = THEME_BY_PROD[t];
+    const max = Math.max(...prods.map(p=>th[p]));
+    return '<tr><td style="font-weight:600;font-size:12px">' + t + '</td>' + prods.map(p=>`<td><div class="bar-cell"><div class="bc-bar"><div class="bc-fill" style="width:${(th[p]/max*100).toFixed(0)}%;background:${NOTE_THEMES.find(x=>x.name===t).color}"></div></div><span style="font-size:12px;font-weight:600">${th[p]}</span></div></td>`).join('') + '</tr>';
+  }).join('') + '</tbody>';
+  $('theme-prod-table').innerHTML = p2Head + p2Body;
+})();
+
+/* ═══ TIMELINE SVG ═══ */
+function drawTimeline() {
+  const svg = $('timeline');
+  if (!svg) return;
+  const W = svg.parentElement.offsetWidth || 800;
+  const H = 155, pad = {t:14,r:12,b:32,l:36};
+  const cW = W - pad.l - pad.r, cH = H - pad.t - pad.b;
+  const n = TIMELINE.length, slot = cW / n;
+  const bW = Math.max(Math.floor(slot * 0.62), 6);
+  const maxArr = Math.max(...TIMELINE.map(t=>t.arr));
+  let html = '';
+  [0,100,200,300].forEach(v=>{
+    const y = pad.t + cH - (v/maxArr*cH);
+    html += `<line x1="${pad.l}" y1="${y}" x2="${W-pad.r}" y2="${y}" stroke="#E5E7EB" stroke-width="1"/>`;
+    html += `<text x="${pad.l-5}" y="${y+4}" font-size="9" fill="#9CA3AF" text-anchor="end">${v}</text>`;
+  });
+  TIMELINE.forEach((t,i)=>{
+    const bH = t.arr/maxArr*cH;
+    const x = pad.l + i*slot + (slot-bW)/2;
+    const y = pad.t + cH - bH;
+    html += `<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bW}" height="${bH.toFixed(1)}" fill="${t.fy===26?'#3B82F6':'#CBD5E1'}" rx="2" opacity="0.85"/>`;
+    html += `<text x="${(x+bW/2).toFixed(1)}" y="${H-pad.b+14}" font-size="9" fill="#9CA3AF" text-anchor="middle">${t.m}</text>`;
+  });
+  html += `<rect x="${pad.l}" y="${pad.t}" width="9" height="9" fill="#3B82F6" rx="2"/><text x="${pad.l+13}" y="${pad.t+8}" font-size="10" fill="#6B7280">FY2026</text>`;
+  html += `<rect x="${pad.l+68}" y="${pad.t}" width="9" height="9" fill="#CBD5E1" rx="2"/><text x="${pad.l+81}" y="${pad.t+8}" font-size="10" fill="#6B7280">FY2027</text>`;
+  svg.setAttribute('width', W);
+  svg.innerHTML = html;
+}
+requestAnimationFrame(()=>{ drawTimeline(); window.addEventListener('resize', drawTimeline); });
+</script>
+</body>
+</html>
